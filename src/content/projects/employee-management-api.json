@@ -1,0 +1,34 @@
+{
+    "slug": "employee-management-api",
+    "status": "completed",
+    "categories": ["backend"],
+    "origin": "personal",
+    "topics": [
+        "rest-api",
+        "authentication",
+        "authorization",
+        "caching",
+        "pagination",
+        "automated-testing"
+    ],
+    "technologies": [
+        "TypeScript",
+        "Node.js",
+        "Express",
+        "PostgreSQL",
+        "Redis",
+        "Zod",
+        "OpenAPI",
+        "Vitest",
+        "Supertest",
+        "Docker"
+    ],
+    "sourceCode": {
+        "availability": "public",
+        "provider": "GitHub",
+        "url": "https://github.com/Kyupes/employee-management-api"
+    },
+    "demo": {
+        "availability": "unavailable"
+    }
+}
