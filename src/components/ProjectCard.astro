@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { originLabels, statusLabels } from '../lib/project-presentation';
 
 type ProjectData = CollectionEntry<'projects'>['data'];
 
@@ -14,16 +15,6 @@ interface Props {
 
 const { title, summary, slug, status, origin, technologies } = Astro.props;
 
-const statusLabels: Record<ProjectData['status'], string> = {
-  completed: 'Concluído',
-  'in-progress': 'Em andamento',
-};
-
-const originLabels: Record<ProjectData['origin'], string> = {
-  academic: 'Acadêmico',
-  personal: 'Pessoal',
-  professional: 'Profissional',
-};
 ---
 
 <article class="project-card">

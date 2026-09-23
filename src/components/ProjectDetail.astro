@@ -1,0 +1,212 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import {
+  categoryLabels,
+  formatCompletionDate,
+  originLabels,
+  statusLabels,
+} from '../lib/project-presentation';
+import { renderProjectMarkdown } from '../lib/render-project-markdown';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  content: CollectionEntry<'projectContent'>;
+}
+
+const { project, content } = Astro.props;
+const { Content } = await render(content);
+const { data: facts } = project;
+const { data: localized } = content;
+
+const technicalOverview = localized.technicalOverview && await renderProjectMarkdown(localized.technicalOverview);
+const architecture = localized.architecture && await renderProjectMarkdown(localized.architecture);
+const algorithm = localized.algorithm && await renderProjectMarkdown(localized.algorithm.explanation);
+const algorithmComplexity = localized.algorithm?.complexity?.explanation &&
+  await renderProjectMarkdown(localized.algorithm.complexity.explanation);
+const technicalDecisions = await Promise.all((localized.technicalDecisions ?? []).map(renderProjectMarkdown));
+const challenges = await Promise.all((localized.challenges ?? []).map(renderProjectMarkdown));
+const testing = localized.testing && await renderProjectMarkdown(localized.testing);
+const lessonsLearned = await Promise.all((localized.lessonsLearned ?? []).map(renderProjectMarkdown));
+const demoExplanation = localized.demoExplanation && await renderProjectMarkdown(localized.demoExplanation);
+const complexity = facts.algorithm?.complexity;
+const hasTechnicalContent = Boolean(
+  technicalOverview || architecture || algorithm || technicalDecisions.length || challenges.length ||
+  testing || lessonsLearned.length,
+);
+---
+
+<article class="project-detail">
+  <header>
+    <h1>{localized.title}</h1>
+    <p class="project-detail__summary">{localized.summary}</p>
+  </header>
+
+  <dl class="project-detail__facts">
+    <div><dt>Estado</dt><dd>{statusLabels[facts.status]}</dd></div>
+    <div><dt>Origem</dt><dd>{originLabels[facts.origin]}</dd></div>
+    <div><dt>Categorias</dt><dd>{facts.categories.map((category) => categoryLabels[category]).join(', ')}</dd></div>
+    <div><dt>Tecnologias</dt><dd>{facts.technologies.join(', ')}</dd></div>
+    {facts.completionDate && (
+      <div>
+        <dt>Concluído em</dt>
+        <dd><time datetime={facts.completionDate}>{formatCompletionDate(facts.completionDate)}</time></dd>
+      </div>
+    )}
+  </dl>
+
+  <section aria-labelledby="project-description">
+    <h2 id="project-description">Sobre o projeto</h2>
+    <Content />
+  </section>
+
+  {hasTechnicalContent && (
+    <details class="project-detail__technical">
+      <summary>Detalhes técnicos</summary>
+      <div class="project-detail__technical-content">
+        {technicalOverview && (
+          <section>
+            <h3>Visão técnica</h3>
+            <div set:html={technicalOverview} />
+          </section>
+        )}
+        {architecture && (
+          <section>
+            <h3>Arquitetura</h3>
+            <div set:html={architecture} />
+          </section>
+        )}
+        {algorithm && (
+          <section>
+            <h3>Algoritmo</h3>
+            <div set:html={algorithm} />
+            {complexity && (
+              <div>
+                <h4>Complexidade</h4>
+                <dl class="project-detail__complexity">
+                  {complexity.time && <div><dt>Tempo</dt><dd><code>{complexity.time}</code></dd></div>}
+                  {complexity.space && <div><dt>Espaço</dt><dd><code>{complexity.space}</code></dd></div>}
+                </dl>
+                {algorithmComplexity && <div set:html={algorithmComplexity} />}
+              </div>
+            )}
+          </section>
+        )}
+        {technicalDecisions.length > 0 && (
+          <section>
+            <h3>Decisões técnicas</h3>
+            <ul>{technicalDecisions.map((decision) => <li><div set:html={decision} /></li>)}</ul>
+          </section>
+        )}
+        {challenges.length > 0 && (
+          <section>
+            <h3>Desafios</h3>
+            <ul>{challenges.map((challenge) => <li><div set:html={challenge} /></li>)}</ul>
+          </section>
+        )}
+        {testing && (
+          <section>
+            <h3>Testes</h3>
+            <div set:html={testing} />
+          </section>
+        )}
+        {lessonsLearned.length > 0 && (
+          <section>
+            <h3>Lições aprendidas</h3>
+            <ul>{lessonsLearned.map((lesson) => <li><div set:html={lesson} /></li>)}</ul>
+          </section>
+        )}
+      </div>
+    </details>
+  )}
+
+  <section aria-labelledby="project-source">
+    <h2 id="project-source">Código-fonte</h2>
+    {facts.sourceCode.availability === 'public' ? (
+      <p><a href={facts.sourceCode.url}>Ver código-fonte em {facts.sourceCode.provider}</a></p>
+    ) : facts.sourceCode.availability === 'private' ? (
+      <p>O código-fonte deste projeto é privado.</p>
+    ) : (
+      <p>O código-fonte deste projeto não está disponível publicamente.</p>
+    )}
+  </section>
+
+  <section aria-labelledby="project-demo">
+    <h2 id="project-demo">Demonstração</h2>
+    {facts.demo.availability === 'interactive' ? (
+      <p>A demonstração interativa será integrada a esta página em uma etapa separada.</p>
+    ) : facts.demo.availability === 'planned' ? (
+      <p>Uma demonstração interativa está planejada, mas ainda não está disponível.</p>
+    ) : (
+      <p>Este projeto não oferece demonstração interativa.</p>
+    )}
+    {demoExplanation && <div set:html={demoExplanation} />}
+  </section>
+</article>
+
+<style>
+  .project-detail {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .project-detail__summary {
+    color: var(--color-muted);
+    font-size: 1.25rem;
+  }
+
+  .project-detail__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
+  dt {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
+
+  .project-detail__technical {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
+  .project-detail__technical summary {
+    cursor: pointer;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .project-detail__technical-content {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .project-detail__technical-content h3 {
+    margin-bottom: var(--space-1);
+  }
+
+  .project-detail__complexity {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .project-detail__technical-content li > div :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>
