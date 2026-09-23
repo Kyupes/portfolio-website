@@ -1092,22 +1092,9 @@ Where practical, interactive demonstrations should execute or integrate with the
 
 # 27. Current Architecture Status
 
-The initial V1 architecture is sufficiently defined to begin creating implementation tasks once the accompanying architecture decisions are recorded.
+The V1 architecture and initial ADRs are recorded. Implementation is underway: the Astro/Bun static site, project content collections, Portuguese project pages, and GitHub Actions validation are in place.
 
-The next design/documentation activities are:
-
-1. review this architecture document;
-2. create Architecture Decision Records for major technical decisions;
-3. define the initial implementation backlog and milestones;
-4. initialize the Astro application only after the documentation phase is complete.
-
-Important decisions deserving initial ADRs include:
-
-- using Astro as the website framework;
-- using Bun as the development/build toolchain;
-- using WebAssembly for compatible interactive C project demonstrations.
-
-Implementation should follow the architecture described here.
+Further implementation should follow the architecture described here. Deferred decisions, such as WebAssembly artifact generation and static hosting, remain open until their requirements are concrete.
 
 If implementation later reveals a constraint that conflicts with this architecture, the implementation should not silently redefine the design.
 

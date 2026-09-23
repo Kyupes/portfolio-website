@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "check": "bun run test && astro check",
+    "check": "astro check",
     "test": "bun test",
     "preview": "astro preview",
     "astro": "astro"
