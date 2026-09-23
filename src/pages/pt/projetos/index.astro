@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPortugueseProjects } from '../../../lib/portuguese-projects';
+
+const projects = getPortugueseProjects(
+  await getCollection('projects'),
+  await getCollection('projectContent'),
+);
+---
+
+<BaseLayout
+  title="Projetos | Portfólio de Engenharia de Software"
+  lang="pt-BR"
+  description="Projetos de engenharia de software, backend e desenvolvimento web."
+>
+  <h1>Projetos</h1>
+  {
+    projects.length === 0 ? (
+      <p>Os projetos serão publicados em breve.</p>
+    ) : (
+      <ul>
+        {projects.map(({ content, slug }) => (
+          <li>
+            <a href={`/pt/projetos/${slug}`}>{content.data.title}</a>
+            <p>{content.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>
