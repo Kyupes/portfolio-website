@@ -1,5 +1,6 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
+import ProjectDetail from '../../../components/ProjectDetail.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPortugueseProjects } from '../../../lib/portuguese-projects';
 
@@ -16,15 +17,9 @@ export async function getStaticPaths() {
 }
 
 const { project, content } = Astro.props;
-const { Content } = await render(content);
 ---
 
 <BaseLayout title={`${content.data.title} | Projetos`} lang="pt-BR" description={content.data.summary}>
   <p><a href="/pt/projetos">Todos os projetos</a></p>
-  <article>
-    <h1>{content.data.title}</h1>
-    <p>{content.data.summary}</p>
-    <p>Estado: {project.data.status === 'completed' ? 'Concluído' : 'Em andamento'}</p>
-    <Content />
-  </article>
+  <ProjectDetail project={project} content={content} />
 </BaseLayout>
