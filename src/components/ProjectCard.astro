@@ -1,0 +1,88 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+type ProjectData = CollectionEntry<'projects'>['data'];
+
+interface Props {
+  title: string;
+  summary: string;
+  slug: ProjectData['slug'];
+  status: ProjectData['status'];
+  origin: ProjectData['origin'];
+  technologies: ProjectData['technologies'];
+}
+
+const { title, summary, slug, status, origin, technologies } = Astro.props;
+
+const statusLabels: Record<ProjectData['status'], string> = {
+  completed: 'Concluído',
+  'in-progress': 'Em andamento',
+};
+
+const originLabels: Record<ProjectData['origin'], string> = {
+  academic: 'Acadêmico',
+  personal: 'Pessoal',
+  professional: 'Profissional',
+};
+---
+
+<article class="project-card">
+  <div class="project-card__meta">
+    <span class:list={['project-card__status', { 'project-card__status--in-progress': status === 'in-progress' }]}>
+      {statusLabels[status]}
+    </span>
+    <span>Origem: {originLabels[origin]}</span>
+  </div>
+  <h2><a href={`/pt/projetos/${slug}`}>{title}</a></h2>
+  <p class="project-card__summary">{summary}</p>
+  <p class="project-card__technologies"><strong>Tecnologias:</strong> {technologies.join(', ')}</p>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
+  .project-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-2);
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .project-card__status {
+    padding: 0.125rem var(--space-1);
+    border-radius: var(--space-1);
+    background: #dcfce7;
+    color: #166534;
+    font-weight: 700;
+  }
+
+  .project-card__status--in-progress {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  h2 {
+    font-size: clamp(1.25rem, 1rem + 0.6vw, 1.5rem);
+  }
+
+  .project-card__summary {
+    color: var(--color-muted);
+  }
+
+  .project-card__technologies {
+    margin-top: auto;
+    margin-bottom: 0;
+    font-size: 0.875rem;
+  }
+</style>
