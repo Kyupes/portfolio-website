@@ -235,6 +235,25 @@ Projects without a meaningful algorithm analysis therefore do not need a separat
 
 ---
 
+## 5.4 Astro content representation
+
+The conceptual project model is implemented with two Astro build-time collections in `src/content.config.ts`:
+
+| Collection | Files | Responsibility |
+|---|---|---|
+| `projects` | `src/content/projects/{slug}.json` | One record per conceptual project: slug, status, categories, origin, topics, technologies, source-code state, demo state and ID, optional algorithm complexity bounds, and optional completion date. |
+| `projectContent` | `src/content/project-content/{locale}/{slug}.md` | One localized account of that project: title, summary, description, optional technical sections, and demo explanation. |
+
+The JSON filename and its validated `slug` must match. A project needs a Portuguese Markdown entry at `pt/{slug}.md`; an `en/{slug}.md` entry can be added later. Each Markdown entry names its shared project using Astro's `reference('projects')` in the `project` frontmatter field and declares its `locale`. Its path, locale, and project reference must agree, and the reference must point to an existing JSON record.
+
+The Markdown body is the required long-form `description`. The frontmatter holds `title`, `summary`, and optional named sections such as `technicalOverview`, `architecture`, `algorithm`, `testing`, `technicalDecisions`, `challenges`, and `lessonsLearned`. Long section values may be authored as Markdown using YAML block scalars. Language-independent time and space bounds live under `algorithm.complexity` in shared metadata; the localized algorithm section holds its explanation and optional localized complexity explanation. These parts join into the conceptual algorithm section. The localized `demoExplanation` field supplies the conceptual `demo.explanation`; demo availability and implementation ID remain shared facts.
+
+Astro schemas validate the structured fields and conditional source/demo rules. The collection loaders additionally reject blank description bodies, mismatched filenames and references, shared projects without Portuguese content, and complexity bounds without a localized algorithm explanation. Future listing and page code should join entries by the shared project ID and render the localized Markdown at build time.
+
+This content structure does not select a project-page design or create project routes. Actual project descriptions remain subject to owner review before publication.
+
+---
+
 # 6. Project Identity and Localization
 
 A project represents **one conceptual project**, regardless of language.
@@ -282,7 +301,7 @@ Localized content contains human-readable text such as:
 - testing explanation;
 - other narrative content.
 
-The exact Astro representation of this model is intentionally deferred until content-system implementation.
+The physical Astro representation is recorded in Section 5.4 above.
 
 ---
 
@@ -1012,10 +1031,6 @@ V1 redirects:
 ```
 
 Automatic language detection may later choose between Portuguese and English once both versions are complete.
-
-## Exact Astro content representation
-
-The conceptual hybrid content architecture is established, but the exact Astro Content Collection or TypeScript schema design should be decided during content-system implementation.
 
 ## Exact repository folder structure
 
