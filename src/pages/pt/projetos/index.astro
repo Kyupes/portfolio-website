@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import ProjectCard from '../../../components/ProjectCard.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPortugueseProjects } from '../../../lib/portuguese-projects';
 
@@ -19,14 +20,36 @@ const projects = getPortugueseProjects(
     projects.length === 0 ? (
       <p>Os projetos serão publicados em breve.</p>
     ) : (
-      <ul>
-        {projects.map(({ content, slug }) => (
+      <ul class="project-list">
+        {projects.map(({ project, content }) => (
           <li>
-            <a href={`/pt/projetos/${slug}`}>{content.data.title}</a>
-            <p>{content.data.summary}</p>
+            <ProjectCard
+              title={content.data.title}
+              summary={content.data.summary}
+              slug={project.data.slug}
+              status={project.data.status}
+              origin={project.data.origin}
+              technologies={project.data.technologies}
+            />
           </li>
         ))}
       </ul>
     )
   }
 </BaseLayout>
+
+<style>
+  .project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-3);
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-list > li {
+    min-width: 0;
+  }
+</style>
