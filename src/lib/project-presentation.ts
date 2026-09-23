@@ -20,6 +20,13 @@ export const categoryLabels: Record<ProjectData['categories'][number], string> =
   web: 'Web',
 };
 
+export function hasComplexitySection(
+  sharedBounds: NonNullable<ProjectData['algorithm']>['complexity'] | undefined,
+  localizedExplanation: string | undefined,
+): boolean {
+  return Boolean(sharedBounds || localizedExplanation);
+}
+
 export function formatCompletionDate(value: string): string {
   const [year, month, day] = value.split('-').map(Number);
   return new Intl.DateTimeFormat('pt-BR', {

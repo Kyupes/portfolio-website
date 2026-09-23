@@ -3,6 +3,7 @@ import { render, type CollectionEntry } from 'astro:content';
 import {
   categoryLabels,
   formatCompletionDate,
+  hasComplexitySection,
   originLabels,
   statusLabels,
 } from '../lib/project-presentation';
@@ -79,13 +80,15 @@ const hasTechnicalContent = Boolean(
           <section>
             <h3>Algoritmo</h3>
             <div set:html={algorithm} />
-            {complexity && (
+            {hasComplexitySection(complexity, algorithmComplexity) && (
               <div>
                 <h4>Complexidade</h4>
-                <dl class="project-detail__complexity">
-                  {complexity.time && <div><dt>Tempo</dt><dd><code>{complexity.time}</code></dd></div>}
-                  {complexity.space && <div><dt>Espaço</dt><dd><code>{complexity.space}</code></dd></div>}
-                </dl>
+                {complexity && (
+                  <dl class="project-detail__complexity">
+                    {complexity.time && <div><dt>Tempo</dt><dd><code>{complexity.time}</code></dd></div>}
+                    {complexity.space && <div><dt>Espaço</dt><dd><code>{complexity.space}</code></dd></div>}
+                  </dl>
+                )}
                 {algorithmComplexity && <div set:html={algorithmComplexity} />}
               </div>
             )}

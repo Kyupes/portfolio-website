@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   categoryLabels,
   formatCompletionDate,
+  hasComplexitySection,
   originLabels,
   statusLabels,
 } from '../src/lib/project-presentation';
@@ -24,5 +25,11 @@ describe('Portuguese project presentation', () => {
     const html = await renderProjectMarkdown('Uma **decisão** com [fonte](https://example.com).');
     expect(html).toContain('<strong>decisão</strong>');
     expect(html).toContain('href="https://example.com"');
+  });
+
+  test('shows localized complexity explanation without shared time or space bounds', () => {
+    expect(hasComplexitySection(undefined, 'Explicação localizada.')).toBe(true);
+    expect(hasComplexitySection({ time: 'O(n)' }, undefined)).toBe(true);
+    expect(hasComplexitySection(undefined, undefined)).toBe(false);
   });
 });
