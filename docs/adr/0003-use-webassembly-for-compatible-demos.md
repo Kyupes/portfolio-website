@@ -241,48 +241,9 @@ The content model explicitly supports projects with unavailable or planned demos
 
 ---
 
-## Deferred Decision: WebAssembly Artifact Generation
+## WebAssembly Artifact Generation
 
-This ADR selects WebAssembly as the execution technology but does not decide how generated `.wasm` artifacts are produced for deployment.
-
-Two potential strategies remain:
-
-### Commit Generated Artifacts
-
-```text id="bzudb6"
-C source
-   ↓
-Developer compiles locally
-   ↓
-Generated Wasm committed
-   ↓
-Astro build uses artifact
-```
-
-### Generate During Build or CI
-
-```text id="tdi60u"
-C source
-   ↓
-CI / build environment
-   ↓
-Emscripten compilation
-   ↓
-Generated Wasm
-   ↓
-Astro build
-```
-
-The choice will be evaluated when implementing the first real WebAssembly demo.
-
-The decision should consider:
-
-- reproducibility;
-- CI complexity;
-- Emscripten version management;
-- build duration;
-- repository size;
-- ease of local development.
+ADR 0004 resolves the previously deferred artifact-generation decision. For V1, an authorized developer compiles each compatible project from a traceable source revision using a documented, version-pinned local process, then commits the generated Wasm and required companion files as portfolio static assets. The Astro build and portfolio CI do not compile C or access external/private project repositories. Source changes used by a demo require artifact regeneration and updated provenance.
 
 ---
 
