@@ -12,6 +12,8 @@ const isProjects = path === '/pt/projetos' || path.startsWith('/pt/projetos/');
       <ul>
         <li><a href="/pt/" aria-current={isHome ? 'page' : undefined}>Início</a></li>
         <li><a href="/pt/projetos" aria-current={isProjects ? 'page' : undefined}>Projetos</a></li>
+        <li><a href="/pt/#curriculos">Currículos</a></li>
+        <li><a href="/pt/#contato">Contato</a></li>
       </ul>
     </nav>
   </div>
@@ -85,9 +87,15 @@ const isProjects = path === '/pt/projetos' || path.startsWith('/pt/projetos/');
     color: var(--color-link-hover);
   }
 
-  @media (max-width: 28rem) {
+  @media (max-width: 48rem) {
     .site-header__inner {
-      flex-wrap: wrap;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    nav a {
+      padding-inline: 0.55rem;
     }
   }
 </style>
