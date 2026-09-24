@@ -4,10 +4,19 @@ import ProjectCard from '../../../components/ProjectCard.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPortugueseProjects } from '../../../lib/portuguese-projects';
+import { getAvailableProjectFilters } from '../../../lib/project-filters';
+import { categoryLabels, originLabels } from '../../../lib/project-presentation';
 
 const projects = getPortugueseProjects(
   await getCollection('projects'),
   await getCollection('projectContent'),
+);
+const availableFilters = getAvailableProjectFilters(projects.map(({ project }) => project.data));
+const categories = availableFilters.categories.sort((a, b) =>
+  categoryLabels[a].localeCompare(categoryLabels[b], 'pt-BR'),
+);
+const origins = availableFilters.origins.sort((a, b) =>
+  originLabels[a].localeCompare(originLabels[b], 'pt-BR'),
 );
 ---
 
@@ -22,25 +31,103 @@ const projects = getPortugueseProjects(
     projects.length === 0 ? (
       <p>Os projetos serão publicados em breve.</p>
     ) : (
-      <ul class="project-list">
-        {projects.map(({ project, content }) => (
-          <li>
-            <ProjectCard
-              title={content.data.title}
-              summary={content.data.summary}
-              slug={project.data.slug}
-              status={project.data.status}
-              origin={project.data.origin}
-              technologies={project.data.technologies}
-            />
-          </li>
-        ))}
-      </ul>
+      <>
+        <div class="project-filters" id="project-filters" role="group" aria-labelledby="filter-title" hidden>
+          <h2 id="filter-title">Filtrar projetos</h2>
+          <div class="project-filters__controls">
+            <div>
+              <label for="category-filter">Categoria técnica</label>
+              <select id="category-filter">
+                <option value="">Todas as categorias</option>
+                {categories.map((category) => (
+                  <option value={category}>{categoryLabels[category]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label for="origin-filter">Origem</label>
+              <select id="origin-filter">
+                <option value="">Todas as origens</option>
+                {origins.map((origin) => (
+                  <option value={origin}>{originLabels[origin]}</option>
+                ))}
+              </select>
+            </div>
+            <button id="clear-filters" type="button">Limpar filtros</button>
+          </div>
+          <p id="filter-count" aria-live="polite" aria-atomic="true" />
+        </div>
+        <p id="no-filter-results" hidden>Nenhum projeto corresponde aos filtros selecionados.</p>
+        <ul class="project-list">
+          {projects.map(({ project, content }) => (
+            <li data-project-categories={project.data.categories.join(' ')} data-project-origin={project.data.origin}>
+              <ProjectCard
+                title={content.data.title}
+                summary={content.data.summary}
+                slug={project.data.slug}
+                status={project.data.status}
+                origin={project.data.origin}
+                technologies={project.data.technologies}
+              />
+            </li>
+          ))}
+        </ul>
+      </>
     )
   }
 </BaseLayout>
 
 <style>
+  .project-filters {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--space-2);
+    background: var(--color-surface);
+  }
+
+  .project-filters h2 {
+    font-size: 1.25rem;
+  }
+
+  .project-filters__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-2);
+  }
+
+  .project-filters__controls > div {
+    display: grid;
+    flex: 1 1 12rem;
+    gap: 0.25rem;
+  }
+
+  .project-filters__controls label {
+    font-weight: 700;
+  }
+
+  .project-filters__controls select {
+    width: 100%;
+  }
+
+  #clear-filters {
+    flex: 0 0 auto;
+  }
+
+  #filter-count {
+    margin: var(--space-2) 0 0;
+    color: var(--color-muted);
+  }
+
+  #no-filter-results {
+    margin-bottom: var(--space-3);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
   .project-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
@@ -55,3 +142,47 @@ const projects = getPortugueseProjects(
     min-width: 0;
   }
 </style>
+
+<script>
+  import { matchesProjectFilters } from '../../../lib/project-filters';
+
+  const controls = document.querySelector<HTMLElement>('#project-filters');
+  const categorySelect = document.querySelector<HTMLSelectElement>('#category-filter');
+  const originSelect = document.querySelector<HTMLSelectElement>('#origin-filter');
+  const clearButton = document.querySelector<HTMLButtonElement>('#clear-filters');
+  const count = document.querySelector<HTMLElement>('#filter-count');
+  const noResults = document.querySelector<HTMLElement>('#no-filter-results');
+  const cards = [...document.querySelectorAll<HTMLLIElement>('[data-project-categories]')];
+
+  if (controls && categorySelect && originSelect && clearButton && count && noResults) {
+    const applyFilters = () => {
+      let visibleCount = 0;
+
+      for (const card of cards) {
+        const visible = matchesProjectFilters(
+          {
+            categories: card.dataset.projectCategories?.split(' ') ?? [],
+            origin: card.dataset.projectOrigin ?? '',
+          },
+          { category: categorySelect.value, origin: originSelect.value },
+        );
+        card.hidden = !visible;
+        if (visible) visibleCount += 1;
+      }
+
+      noResults.hidden = visibleCount !== 0;
+      count.textContent = `${visibleCount} ${visibleCount === 1 ? 'projeto encontrado' : 'projetos encontrados'}`;
+    };
+
+    categorySelect.addEventListener('change', applyFilters);
+    originSelect.addEventListener('change', applyFilters);
+    clearButton.addEventListener('click', () => {
+      categorySelect.value = '';
+      originSelect.value = '';
+      applyFilters();
+    });
+
+    applyFilters();
+    controls.hidden = false;
+  }
+</script>
