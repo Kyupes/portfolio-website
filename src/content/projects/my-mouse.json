@@ -1,0 +1,21 @@
+{
+  "slug": "my-mouse",
+  "status": "in-progress",
+  "categories": ["algorithms"],
+  "origin": "academic",
+  "topics": ["breadth-first-search", "maze-solving", "graph-traversal"],
+  "technologies": ["C", "GCC", "Make"],
+  "sourceCode": {
+    "availability": "private",
+    "provider": "GitHub"
+  },
+  "demo": {
+    "availability": "planned"
+  },
+  "algorithm": {
+    "complexity": {
+      "time": "O(N²)",
+      "space": "O(N)"
+    }
+  }
+}
