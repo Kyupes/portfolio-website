@@ -89,6 +89,49 @@ const projects = getPortugueseProjects(
       <span>Em andamento</span>
     </div>
   </section>
+
+  <section class="home-cv" id="curriculos" aria-labelledby="cv-title">
+    <div class="home-cv__heading">
+      <p class="section-label">Currículos</p>
+      <h2 id="cv-title">Conheça minha trajetória em detalhes.</h2>
+      <p>Escolha o idioma para abrir o currículo no navegador ou baixar o PDF.</p>
+    </div>
+    <div class="home-cv__list">
+      <article class="home-cv__card">
+        <span class="home-cv__language" lang="pt-BR">Português</span>
+        <p>Currículo em português · PDF</p>
+        <div class="home-cv__actions">
+          <a href="/cv/igor-castro-de-gissi-pt.pdf">Abrir currículo em português (PDF)</a>
+          <a href="/cv/igor-castro-de-gissi-pt.pdf" download="igor-castro-de-gissi-pt.pdf">
+            Baixar PDF em português
+          </a>
+        </div>
+      </article>
+      <article class="home-cv__card">
+        <span class="home-cv__language" lang="en">English</span>
+        <p>Currículo em inglês · PDF</p>
+        <div class="home-cv__actions">
+          <a href="/cv/igor-castro-de-gissi-en.pdf">Abrir currículo em inglês (PDF)</a>
+          <a href="/cv/igor-castro-de-gissi-en.pdf" download="igor-castro-de-gissi-en.pdf">
+            Baixar PDF em inglês
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-contact" id="contato" aria-labelledby="contact-title">
+    <div>
+      <p class="section-label">Contato</p>
+      <h2 id="contact-title">Vamos conversar?</h2>
+      <p>Você pode entrar em contato por email ou encontrar meu perfil nas plataformas abaixo.</p>
+    </div>
+    <ul>
+      <li><a href="mailto:gissiigor@gmail.com">Email · gissiigor@gmail.com</a></li>
+      <li><a href="https://www.linkedin.com/in/igorgissi/">Perfil no LinkedIn</a></li>
+      <li><a href="https://github.com/Kyupes">Perfil no GitHub</a></li>
+    </ul>
+  </section>
 </BaseLayout>
 
 <style>
@@ -196,8 +239,15 @@ const projects = getPortugueseProjects(
   }
 
   .home-projects,
-  .home-formation {
+  .home-formation,
+  .home-cv,
+  .home-contact {
     margin-top: var(--space-6);
+  }
+
+  .home-cv,
+  .home-contact {
+    scroll-margin-top: var(--space-3);
   }
 
   .section-label {
@@ -273,9 +323,102 @@ const projects = getPortugueseProjects(
     font-size: 1.25rem;
   }
 
+  .home-cv {
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .home-cv__heading > p:last-child {
+    color: var(--color-muted);
+  }
+
+  .home-cv__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .home-cv__card {
+    min-width: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--space-2);
+    background: var(--color-surface);
+  }
+
+  .home-cv__language {
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+
+  .home-cv__card p {
+    margin-block: var(--space-1) var(--space-3);
+    color: var(--color-muted);
+  }
+
+  .home-cv__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .home-cv__actions a {
+    font-weight: 700;
+  }
+
+  .home-contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(17rem, 0.8fr);
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--space-3);
+    background: #172b4d;
+    color: #f8fafc;
+  }
+
+  .home-contact .section-label {
+    color: #7dd3fc;
+  }
+
+  .home-contact p:last-child {
+    margin-bottom: 0;
+    color: #dbeafe;
+  }
+
+  .home-contact ul {
+    display: grid;
+    gap: var(--space-1);
+    align-self: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-contact a {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid rgb(186 230 253 / 30%);
+    border-radius: var(--space-1);
+    color: #f8fafc;
+    font-weight: 700;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .home-contact a:hover {
+    background: rgb(186 230 253 / 15%);
+    color: #f8fafc;
+  }
+
+  .home-contact a:focus-visible {
+    outline-color: #7dd3fc;
+  }
+
   @media (max-width: 48rem) {
     .home-hero,
-    .home-formation {
+    .home-formation,
+    .home-cv__list,
+    .home-contact {
       grid-template-columns: 1fr;
     }
 
