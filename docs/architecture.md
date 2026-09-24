@@ -651,14 +651,9 @@ Portfolio
 
 Projects without WebAssembly are unaffected by this architecture.
 
-The exact process for generating `.wasm` artifacts is intentionally deferred.
+ADR 0004 resolves artifact generation for V1: compatible C projects are compiled explicitly outside the portfolio build with a documented, version-pinned local process. The generated Wasm and any runtime companion files are committed as static assets in the portfolio repository. The source repository and exact commit SHA used to produce each artifact must be traceable in version-controlled provenance. Changes to source used by a demo require regeneration of its artifact set and an updated provenance record.
 
-Potential strategies include:
-
-1. compiling manually and committing the generated artifact;
-2. generating the artifact through the build or CI pipeline.
-
-The choice should be made when the first WebAssembly demo is implemented and the real Emscripten requirements are understood.
+Astro consumes the committed files; the portfolio CI does not install Emscripten, compile C, or require access to external or private project repositories. Build- or CI-time Wasm compilation may be reconsidered if maintaining multiple demos makes local generation impractical.
 
 ---
 
@@ -745,7 +740,7 @@ uses
 my_mouse.wasm
 ```
 
-The `.wasm` file belongs to the demo implementation boundary.
+The `.wasm` file and any required companion artifacts belong to the demo implementation boundary. They are generated outside the portfolio build and copied from committed static assets into the deployed site, as decided in ADR 0004.
 
 ---
 
@@ -1013,15 +1008,6 @@ The following decisions are intentionally postponed because current requirements
 
 Cloudflare Pages, Vercel, or another static hosting provider may be selected later.
 
-## WebAssembly compilation strategy
-
-The project may either:
-
-- commit ready-to-use Wasm artifacts;
-- or generate them during CI/build.
-
-This should be evaluated while implementing the first real WebAssembly demo.
-
 ## Browser-language detection
 
 V1 redirects:
@@ -1094,7 +1080,7 @@ Where practical, interactive demonstrations should execute or integrate with the
 
 The V1 architecture and initial ADRs are recorded. Implementation is underway: the Astro/Bun static site, project content collections, Portuguese project pages, and GitHub Actions validation are in place.
 
-Further implementation should follow the architecture described here. Deferred decisions, such as WebAssembly artifact generation and static hosting, remain open until their requirements are concrete.
+Further implementation should follow the architecture described here. WebAssembly artifact generation is decided in ADR 0004; other deferred decisions, such as the hosting provider, remain open until their requirements are concrete.
 
 If implementation later reveals a constraint that conflicts with this architecture, the implementation should not silently redefine the design.
 
