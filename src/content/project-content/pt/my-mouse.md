@@ -2,7 +2,7 @@
 project: my-mouse
 locale: pt
 title: "my_mouse: solucionador de labirintos"
-summary: "Projeto acadêmico em andamento que lê um labirinto de um arquivo e busca uma rota entre a entrada e a saída."
+summary: "Projeto acadêmico colaborativo em andamento que lê um labirinto de um arquivo e busca uma rota entre a entrada e a saída."
 technicalOverview: |
   O programa em C recebe o caminho de um arquivo `.map`. Seu cabeçalho informa as dimensões do labirinto e os caracteres usados para obstáculos, espaços livres, início, fim e trajeto. O código lê a grade, verifica a presença de um início e um fim e então procura uma rota. Quando encontra o destino, marca o caminho na grade e imprime o resultado.
 architecture: |
@@ -21,9 +21,9 @@ technicalDecisions:
 challenges:
   - "A validação do formato de entrada ainda não está concluída: há uma rotina de validação do cabeçalho comentada no código atual."
 testing: |
-  O repositório contém mapas de exemplo em `our_test_files/`, incluindo arquivos nomeados como casos de erro, que podem ser usados em execuções manuais com `make` e `./my_mouse arquivo.map`. Não há uma suíte de testes automatizados no estado do repositório inspecionado.
+  O repositório contém mapas de exemplo em `our_test_files/`, incluindo `bug_01.map` e `bug_02.map`, criados para reproduzir cenários de bug. Esses arquivos podem ser usados em execuções manuais com `make` e `./my_mouse arquivo.map`. Não há uma suíte de testes automatizados no estado do repositório inspecionado.
 demoExplanation: |
   A demonstração no navegador está planejada para uma etapa futura. Por enquanto, esta página apresenta o projeto e o algoritmo sem executar o programa; o repositório original permanece privado.
 ---
 
-`my_mouse` é um projeto acadêmico em equipe, ainda em desenvolvimento, voltado à resolução de labirintos. A versão atual lê um mapa de arquivo, usa busca em largura para procurar uma rota e, quando encontra a saída, imprime o labirinto com o trajeto marcado. O código e os mapas de exemplo mostram o funcionamento atual; a validação do cabeçalho está incompleta e a demonstração interativa ainda não existe.
+`my_mouse` é um projeto acadêmico em desenvolvimento realizado em colaboração por Igor Castro de Gissi e Vladislav Doynov. A versão atual lê um mapa de arquivo, usa busca em largura para procurar uma rota e, quando encontra a saída, imprime o labirinto com o trajeto marcado. O código e os mapas de exemplo mostram o funcionamento atual; a validação do cabeçalho está incompleta e a demonstração interativa ainda não existe.
