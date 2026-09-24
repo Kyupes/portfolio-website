@@ -1,14 +1,287 @@
 ---
+import { getCollection } from 'astro:content';
+import ProjectCard from '../../components/ProjectCard.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPortugueseProjects } from '../../lib/portuguese-projects';
 
-const pageTitle = 'Portfólio de Engenharia de Software';
+const pageTitle = 'Portfólio | Engenharia de Software';
+const projects = getPortugueseProjects(
+  await getCollection('projects'),
+  await getCollection('projectContent'),
+);
 ---
 
 <BaseLayout
   title={pageTitle}
   lang="pt-BR"
-  description="Portfólio de projetos de engenharia de software, backend e desenvolvimento web."
+  description="Portfólio de projetos de Engenharia de Software com foco em backend e desenvolvimento web."
 >
-  <h1>{pageTitle}</h1>
-  <p>Este portfólio está em construção.</p>
+  <SiteHeader slot="site-header" />
+
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-hero__content">
+      <p class="eyebrow">Portfólio / Engenharia de Software</p>
+      <h1 id="home-title">Ideias de software, construídas com método.</h1>
+      <p class="home-hero__intro">
+        Sou estudante de Engenharia de Software com foco em backend e desenvolvimento web. Aqui apresento
+        projetos e as decisões por trás de cada implementação.
+      </p>
+      <a class="home-hero__action" href="/pt/projetos">
+        Explorar projetos <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <aside class="home-hero__focus" aria-labelledby="focus-title">
+      <p class="eyebrow">Áreas de interesse</p>
+      <h2 id="focus-title">O que orienta meus projetos</h2>
+      <ul>
+        <li><span>01</span> Backend e APIs</li>
+        <li><span>02</span> Desenvolvimento web</li>
+        <li><span>03</span> Engenharia de software</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="home-projects" aria-labelledby="projects-title">
+    <div class="home-projects__heading">
+      <div>
+        <p class="section-label">Projetos</p>
+        <h2 id="projects-title">Trabalho em foco</h2>
+        <p>Explore o contexto, as tecnologias e as escolhas de implementação de cada projeto.</p>
+      </div>
+      <a href="/pt/projetos">Ver todos os projetos <span aria-hidden="true">↗</span></a>
+    </div>
+    {
+      projects.length > 0 ? (
+        <ul class="home-projects__list">
+          {projects.slice(0, 2).map(({ project, content }) => (
+            <li>
+              <ProjectCard
+                title={content.data.title}
+                summary={content.data.summary}
+                slug={project.data.slug}
+                status={project.data.status}
+                origin={project.data.origin}
+                technologies={project.data.technologies}
+              />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>Os projetos serão publicados em breve.</p>
+      )
+    }
+  </section>
+
+  <section class="home-formation" aria-labelledby="formation-title">
+    <div>
+      <p class="section-label">Formação</p>
+      <h2 id="formation-title">Aprendizado aplicado em projetos.</h2>
+      <p>
+        Estudo Engenharia de Software e uso este espaço para mostrar o desenvolvimento de soluções em
+        backend e web, com explicações acessíveis e detalhes para quem quiser se aprofundar.
+      </p>
+    </div>
+    <div class="home-formation__fact">
+      <span>Formação atual</span>
+      <strong>Engenharia de Software</strong>
+      <span>Em andamento</span>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 0.8fr);
+    gap: clamp(var(--space-3), 4vw, var(--space-6));
+    position: relative;
+    overflow: hidden;
+    padding: clamp(var(--space-4), 6vw, var(--space-6));
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(circle at 95% 5%, rgb(14 165 233 / 22%), transparent 32%),
+      linear-gradient(135deg, #0f172a, #172b4d);
+    color: #f8fafc;
+  }
+
+  .home-hero::before {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    content: '';
+    pointer-events: none;
+  }
+
+  .home-hero > * {
+    position: relative;
+  }
+
+  .eyebrow,
+  .section-label {
+    margin-bottom: var(--space-2);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .home-hero .eyebrow {
+    color: #7dd3fc;
+  }
+
+  .home-hero h1 {
+    max-width: 13ch;
+    margin-bottom: var(--space-3);
+    font-size: clamp(2.5rem, 1.8rem + 3.4vw, 5rem);
+  }
+
+  .home-hero__intro {
+    max-width: 54ch;
+    color: #dbeafe;
+    font-size: 1.125rem;
+  }
+
+  .home-hero__action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--space-1);
+    background: #7dd3fc;
+    color: #082f49;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .home-hero__action:hover {
+    background: #bae6fd;
+    color: #082f49;
+  }
+
+  .home-hero__focus {
+    align-self: end;
+    padding: var(--space-3);
+    border: 1px solid rgb(186 230 253 / 30%);
+    border-radius: var(--space-2);
+    background: rgb(15 23 42 / 72%);
+  }
+
+  .home-hero__focus h2 {
+    margin-bottom: var(--space-3);
+    font-size: 1.5rem;
+  }
+
+  .home-hero__focus ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-hero__focus li {
+    display: flex;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    border-top: 1px solid rgb(186 230 253 / 20%);
+  }
+
+  .home-hero__focus li span {
+    color: #7dd3fc;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .home-projects,
+  .home-formation {
+    margin-top: var(--space-6);
+  }
+
+  .section-label {
+    color: var(--color-link);
+  }
+
+  .home-projects__heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .home-projects__heading h2,
+  .home-formation h2 {
+    margin-bottom: var(--space-1);
+  }
+
+  .home-projects__heading p:last-child {
+    margin-bottom: 0;
+    color: var(--color-muted);
+  }
+
+  .home-projects__heading > a {
+    flex: none;
+    font-weight: 700;
+  }
+
+  .home-projects__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-3);
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-projects__list > li {
+    min-width: 0;
+  }
+
+  .home-formation {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 0.7fr);
+    align-items: center;
+    gap: var(--space-4);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .home-formation p:last-child {
+    margin-bottom: 0;
+    color: var(--color-muted);
+  }
+
+  .home-formation__fact {
+    display: grid;
+    gap: 0.25rem;
+    padding: var(--space-3);
+    border-left: 4px solid var(--color-link);
+    border-radius: var(--space-1);
+    background: var(--color-surface);
+  }
+
+  .home-formation__fact span {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .home-formation__fact strong {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 48rem) {
+    .home-hero,
+    .home-formation {
+      grid-template-columns: 1fr;
+    }
+
+    .home-projects__heading {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+</style>

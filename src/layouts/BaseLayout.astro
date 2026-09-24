@@ -20,7 +20,8 @@ const { title, lang, description } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <main class="page-container">
+    <slot name="site-header" />
+    <main id="main-content" class="page-container">
       <slot />
     </main>
   </body>

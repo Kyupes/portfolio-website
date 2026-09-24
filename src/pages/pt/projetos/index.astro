@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import ProjectCard from '../../../components/ProjectCard.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPortugueseProjects } from '../../../lib/portuguese-projects';
 
@@ -15,6 +16,7 @@ const projects = getPortugueseProjects(
   lang="pt-BR"
   description="Projetos de engenharia de software, backend e desenvolvimento web."
 >
+  <SiteHeader slot="site-header" />
   <h1>Projetos</h1>
   {
     projects.length === 0 ? (
