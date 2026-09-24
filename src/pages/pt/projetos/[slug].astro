@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import ProjectDetail from '../../../components/ProjectDetail.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getPortugueseProjects } from '../../../lib/portuguese-projects';
 
@@ -20,6 +21,7 @@ const { project, content } = Astro.props;
 ---
 
 <BaseLayout title={`${content.data.title} | Projetos`} lang="pt-BR" description={content.data.summary}>
+  <SiteHeader slot="site-header" />
   <p><a href="/pt/projetos">Todos os projetos</a></p>
   <ProjectDetail project={project} content={content} />
 </BaseLayout>
