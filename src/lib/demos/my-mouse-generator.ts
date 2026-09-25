@@ -34,11 +34,13 @@ export function generateMyMouseMaze(width: number, height: number, random: () =>
   const alongCount = Math.floor((along - 3) / 2) + 1;
   const acrossCount = Math.floor((across - 3) / 2) + 1;
   const track = pick(acrossCount);
+  const exitTrack = pick(acrossCount);
   const otherTrack = track === 0 ? 1 : track === acrossCount - 1 ? track - 1 : track + (pick(2) === 0 ? -1 : 1);
-  const shortcutSegment = pick(alongCount - 1);
+  // Reserve the final column for the exit connector when there is room.
+  const shortcutSegment = pick(Math.max(1, alongCount - 2));
   const detours = new Set([shortcutSegment]);
   const candidates = Array.from({ length: alongCount - 1 }, (_, index) => index)
-    .filter((index) => Math.abs(index - shortcutSegment) > 1);
+    .filter((index) => index < alongCount - 2 && Math.abs(index - shortcutSegment) > 1);
   const additionalDetours = Math.floor((alongCount - 2) / 3);
   while (candidates.length && detours.size <= additionalDetours) {
     const index = pick(candidates.length);
@@ -66,7 +68,7 @@ export function generateMyMouseMaze(width: number, height: number, random: () =>
   }
 
   // Multiple separated bends keep the route nontrivial after one bend is
-  // shortened. The seeded tree path remains simple and connected.
+  // shortened. The exit connector is added after the across-maze route.
   const route: Cell[] = [{ x: 0, y: track }];
   let shortcutFromIndex = -1;
   for (let x = 0; x < alongCount - 1; x++) {
@@ -76,6 +78,14 @@ export function generateMyMouseMaze(width: number, height: number, random: () =>
     } else {
       route.push({ x: x + 1, y: track });
     }
+  }
+
+  // Walk along the final interior column to the independent exit track.
+  // On the minimum grid this walk can revisit a detour cell, but it is
+  // bounded and still constructs a connected entrance-to-exit walk.
+  const step = Math.sign(exitTrack - track);
+  for (let y = track + step; step !== 0 && y !== exitTrack + step; y += step) {
+    route.push({ x: alongCount - 1, y });
   }
 
   for (let index = 0; index < route.length; index++) {
@@ -118,8 +128,9 @@ export function generateMyMouseMaze(width: number, height: number, random: () =>
   const opening = logical({ x: 0, y: track }).y;
   walls[opening][0] = '1';
   const last = logical({ x: alongCount - 1, y: track }).x;
-  for (let x = last + 1; x < along - 1; x++) walls[opening][x] = ' ';
-  walls[opening][along - 1] = '2';
+  const exitRow = logical({ x: alongCount - 1, y: exitTrack }).y;
+  for (let x = last + 1; x < along - 1; x++) walls[exitRow][x] = ' ';
+  walls[exitRow][along - 1] = '2';
 
   function transform(cell: Cell): Cell {
     const x = reverse ? along - 1 - cell.x : cell.x;
