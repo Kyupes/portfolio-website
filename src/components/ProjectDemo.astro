@@ -1,0 +1,15 @@
+---
+import MyMouseDemo from './demos/MyMouseDemo.astro';
+
+interface Props {
+  id: string;
+}
+
+const demos = {
+  'my-mouse': MyMouseDemo,
+};
+
+const Demo = demos[Astro.props.id as keyof typeof demos];
+---
+
+{Demo ? <Demo /> : <p role="status">Esta demonstração não está disponível no momento.</p>}

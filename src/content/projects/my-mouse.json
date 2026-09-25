@@ -10,7 +10,8 @@
     "provider": "GitHub"
   },
   "demo": {
-    "availability": "planned"
+    "availability": "interactive",
+    "id": "my-mouse"
   },
   "algorithm": {
     "complexity": {
