@@ -1,5 +1,3 @@
-export const exampleMap = '3x5* o12\n*****\n*1 2*\n*****\n';
-
 export interface MouseModule {
   ccall(name: string, returnType: 'number' | null, argTypes: string[], args: Array<string | number>): number;
   UTF8ToString(pointer: number): string;
@@ -36,8 +34,10 @@ export function solveWithModule(module: MouseModule, map: string): MouseSolution
     const pointer = module.ccall('mouse_result', 'number', [], []);
     if (!pointer) throw new Error('O solucionador não retornou um labirinto.');
     const result = module.UTF8ToString(pointer);
-    const steps = module.ccall('mouse_steps', 'number', [], []);
-    return { map: result, steps };
+    // The C interface counts painted interior cells; a route from the start
+    // through those cells to the exit has one more movement than that count.
+    const paintedCells = module.ccall('mouse_steps', 'number', [], []);
+    return { map: result, steps: paintedCells + 1 };
   } finally {
     module.ccall('mouse_reset', null, [], []);
   }

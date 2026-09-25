@@ -22,6 +22,12 @@ docker run --rm --mount "type=bind,source=$PWD,target=/src" --workdir /src emscr
 
 The build emits `dist/wasm/my_mouse.mjs` and `dist/wasm/my_mouse.wasm`. Copy both files together into this repository's `public/demos/my-mouse/` directory. The browser loads them from `/demos/my-mouse/my_mouse.mjs` and `/demos/my-mouse/my_mouse.wasm` only when the visitor activates the demo. The verification script checks a valid maze, the solved output and step count, and interface failure cases. Update this record and both artifacts in the same change whenever their source revision changes.
 
+## Browser input generation
+
+The portfolio's `my_mouse`-specific TypeScript generator creates a complete LF-terminated `.map` string from visitor-selected dimensions. It connects the entrance and exit through a constructed route, adds a shorter alternative connection, and fills out randomized passages without calling Wasm or implementing shortest-path search. Generation and solving are separate actions: the generated input is displayed first, then **Resolver** passes that same string through the TypeScript adapter to the committed Wasm artifact and original C BFS logic. The 5–50 width/height controls are demo usability limits, not C or WebAssembly solver restrictions. The artifact source, interface, and hashes above are unchanged by the browser generator.
+
+The C `mouse_steps` export counts painted interior path cells. The adapter adds one when presenting the number of movements from the entrance to the exit; this is a display conversion, not a second pathfinding implementation.
+
 ## Committed outputs
 
 | File | SHA-256 |

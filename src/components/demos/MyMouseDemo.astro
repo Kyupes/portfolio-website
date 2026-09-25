@@ -1,62 +1,117 @@
 ---
-import { exampleMap } from '../../lib/demos/my-mouse-adapter';
+import { mouseDimensionLimits } from '../../lib/demos/my-mouse-generator';
 ---
 
 <div class="mouse-demo" data-my-mouse-demo>
-  <p>Este exemplo fixo mostra o solucionador procurando a saída do labirinto. O símbolo <code>1</code> é a entrada, <code>2</code> é a saída e <code>o</code> marca o trajeto.</p>
+  <p>Escolha as dimensões, gere um labirinto e depois peça ao solucionador em C para encontrar o caminho mais curto. <code>1</code> marca a entrada, <code>2</code> a saída e <code>o</code> o trajeto encontrado.</p>
+  <div class="mouse-demo__controls">
+    <label>Largura
+      <input type="number" min={mouseDimensionLimits.min} max={mouseDimensionLimits.max} step="1" value={mouseDimensionLimits.defaultWidth} inputmode="numeric" data-mouse-width />
+    </label>
+    <label>Altura
+      <input type="number" min={mouseDimensionLimits.min} max={mouseDimensionLimits.max} step="1" value={mouseDimensionLimits.defaultHeight} inputmode="numeric" data-mouse-height />
+    </label>
+    <button type="button" data-mouse-generate hidden>Gerar labirinto</button>
+    <button type="button" data-mouse-solve hidden disabled>Resolver</button>
+  </div>
+  <p class="mouse-demo__status" role="status" aria-live="polite" data-mouse-status>Ative o JavaScript para gerar um labirinto.</p>
   <div class="mouse-demo__maps">
-    <div>
-      <h3>Mapa de entrada</h3>
-      <pre aria-label="Mapa de entrada"><code>{exampleMap}</code></pre>
+    <div data-mouse-input hidden>
+      <h3>Labirinto gerado</h3>
+      <pre aria-label="Labirinto gerado"><code data-mouse-map></code></pre>
     </div>
     <div data-mouse-result hidden>
-      <h3>Mapa resolvido</h3>
-      <pre aria-label="Mapa resolvido"><code data-mouse-output></code></pre>
+      <h3>Labirinto resolvido</h3>
+      <pre aria-label="Labirinto resolvido"><code data-mouse-output></code></pre>
       <p data-mouse-steps></p>
     </div>
   </div>
-  <button type="button" data-mouse-solve hidden>Resolver</button>
-  <p class="mouse-demo__status" role="status" aria-live="polite" data-mouse-status>Ative o JavaScript para executar esta demonstração.</p>
 </div>
 
 <script>
-  import { exampleMap, solveMyMouse } from '../../lib/demos/my-mouse-adapter';
+  import { generateMyMouseMaze, isMouseDimension } from '../../lib/demos/my-mouse-generator';
+  import { solveMyMouse } from '../../lib/demos/my-mouse-adapter';
 
   const demo = document.querySelector<HTMLElement>('[data-my-mouse-demo]');
-  const button = demo?.querySelector<HTMLButtonElement>('[data-mouse-solve]');
+  const width = demo?.querySelector<HTMLInputElement>('[data-mouse-width]');
+  const height = demo?.querySelector<HTMLInputElement>('[data-mouse-height]');
+  const generate = demo?.querySelector<HTMLButtonElement>('[data-mouse-generate]');
+  const solve = demo?.querySelector<HTMLButtonElement>('[data-mouse-solve]');
   const status = demo?.querySelector<HTMLElement>('[data-mouse-status]');
+  const input = demo?.querySelector<HTMLElement>('[data-mouse-input]');
+  const map = demo?.querySelector<HTMLElement>('[data-mouse-map]');
   const result = demo?.querySelector<HTMLElement>('[data-mouse-result]');
   const output = demo?.querySelector<HTMLElement>('[data-mouse-output]');
   const steps = demo?.querySelector<HTMLElement>('[data-mouse-steps]');
 
-  if (button && status && result && output && steps) {
-    button.hidden = false;
-    status.textContent = '';
-    button.addEventListener('click', async () => {
-      button.disabled = true;
+  if (width && height && generate && solve && status && input && map && result && output && steps) {
+    let currentMap: string | undefined;
+    generate.hidden = false;
+    solve.hidden = false;
+    status.textContent = 'Defina as dimensões e selecione “Gerar labirinto”.';
+
+    generate.addEventListener('click', () => {
+      const nextWidth = Number(width.value);
+      const nextHeight = Number(height.value);
+      if (!width.value.trim() || !height.value.trim() || !isMouseDimension(nextWidth) || !isMouseDimension(nextHeight)) {
+        status.textContent = 'Informe largura e altura inteiras entre 5 e 50.';
+        return;
+      }
+      try {
+        const generated = generateMyMouseMaze(nextWidth, nextHeight);
+        currentMap = generated.map;
+        map.textContent = currentMap;
+        input.hidden = false;
+        output.textContent = '';
+        steps.textContent = '';
+        result.hidden = true;
+        solve.disabled = false;
+        status.textContent = 'Labirinto gerado. Selecione “Resolver” para procurar o caminho mais curto.';
+      } catch (error) {
+        console.error('Falha ao gerar o labirinto my_mouse:', error);
+        currentMap = undefined;
+        solve.disabled = true;
+        input.hidden = true;
+        result.hidden = true;
+        status.textContent = 'Não foi possível gerar o labirinto. Tente novamente.';
+      }
+    });
+
+    solve.addEventListener('click', async () => {
+      if (!currentMap) return;
+      const mapToSolve = currentMap;
+      solve.disabled = true;
+      generate.disabled = true;
+      width.disabled = true;
+      height.disabled = true;
       result.hidden = true;
       status.textContent = 'Resolvendo o labirinto…';
       try {
-        const solution = await solveMyMouse(exampleMap);
+        const solution = await solveMyMouse(mapToSolve);
         output.textContent = solution.map;
-        steps.textContent = `${solution.steps} ${solution.steps === 1 ? 'passo' : 'passos'} no trajeto.`;
+        steps.textContent = `${solution.steps} ${solution.steps === 1 ? 'passo' : 'passos'} no caminho mais curto.`;
         result.hidden = false;
         status.textContent = 'Labirinto resolvido.';
       } catch (error) {
         console.error('Falha na demonstração my_mouse:', error);
-        status.textContent = 'Não foi possível carregar ou executar a demonstração. Tente novamente mais tarde.';
+        status.textContent = 'Não foi possível carregar ou executar a demonstração. Tente novamente.';
       } finally {
-        button.disabled = false;
+        solve.disabled = false;
+        generate.disabled = false;
+        width.disabled = false;
+        height.disabled = false;
       }
     });
   }
 </script>
 
 <style>
-  .mouse-demo { display: grid; gap: var(--space-2); }
-  .mouse-demo__maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-3); }
+  .mouse-demo { display: grid; gap: var(--space-2); min-width: 0; }
+  .mouse-demo__controls { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+  .mouse-demo__controls label { display: grid; gap: 0.25rem; }
+  .mouse-demo__controls input { width: 7rem; }
+  .mouse-demo__maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-3); min-width: 0; }
   .mouse-demo__maps > div { min-width: 0; }
   pre { width: 100%; overflow-x: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--space-1); background: var(--color-surface); white-space: pre; }
-  button { justify-self: start; }
   .mouse-demo__status { min-height: 1.5em; }
 </style>
