@@ -42,6 +42,17 @@ function inspectMaze(width: number, height: number, seed: number): void {
   // This is the route the generator constructs, not a second shortest-path search.
   // Its chord joins two adjacent grid cells separated by a three-edge detour.
   const route = construction.route;
+  expect(Math.abs(route[0].x - entrance.x) + Math.abs(route[0].y - entrance.y)).toBe(1);
+  const exitDistance = Math.abs(route.at(-1)!.x - exit.x) + Math.abs(route.at(-1)!.y - exit.y);
+  expect(exitDistance).toBeGreaterThanOrEqual(1);
+  expect(exitDistance).toBeLessThanOrEqual(2);
+  const exitStepX = Math.sign(exit.x - route.at(-1)!.x);
+  const exitStepY = Math.sign(exit.y - route.at(-1)!.y);
+  for (let distance = 1; distance < exitDistance; distance++) {
+    expect(rows[route.at(-1)!.y + distance * exitStepY][route.at(-1)!.x + distance * exitStepX]).toBe(' ');
+  }
+  expect(rows[route[0].y][route[0].x]).toBe(' ');
+  expect(rows[route.at(-1)!.y][route.at(-1)!.x]).toBe(' ');
   const { from, to } = construction.shortcut;
   const fromIndex = route.findIndex((point) => point.x === from.x && point.y === from.y);
   const toIndex = route.findIndex((point) => point.x === to.x && point.y === to.y);
@@ -79,19 +90,28 @@ describe('my_mouse maze generator', () => {
     for (let seed = 0; seed < 20; seed++) inspectMaze(width, height, seed);
   });
 
-  test('supports both orientations and directions', () => {
+  test('supports both orientations and directions with independent opening positions', () => {
     const openings = new Set<string>();
     for (const orientation of [0.1, 0.9]) {
       for (const direction of [0.1, 0.9]) {
-        const values = [orientation, direction];
-        const map = generateMyMouseMaze(9, 7, () => values.shift() ?? 0.1).map;
-        const rows = map.split('\n').slice(1, -1);
-        const row = rows.findIndex((line) => line.includes('1'));
-        const column = rows[row].indexOf('1');
-        openings.add(`${column},${row}`);
+        for (const [entranceChoice, exitChoice] of [[0.1, 0.9], [0.9, 0.1], [0.1, 0.1]]) {
+          const values = [orientation, direction, entranceChoice, exitChoice];
+          const map = generateMyMouseMaze(9, 7, () => values.shift() ?? 0.1).map;
+          const rows = map.split('\n').slice(1, -1);
+          const startRow = rows.findIndex((line) => line.includes('1'));
+          const endRow = rows.findIndex((line) => line.includes('2'));
+          const start = { x: rows[startRow].indexOf('1'), y: startRow };
+          const end = { x: rows[endRow].indexOf('2'), y: endRow };
+          openings.add(`${start.x},${start.y}`);
+          if (orientation < 0.5) {
+            expect(start.y === end.y).toBe(entranceChoice === exitChoice);
+          } else {
+            expect(start.x === end.x).toBe(entranceChoice === exitChoice);
+          }
+        }
       }
     }
-    expect(openings.size).toBe(4);
+    expect(openings.size).toBeGreaterThanOrEqual(4);
   });
 
   test('random seeds produce different layouts at the default dimensions', () => {
