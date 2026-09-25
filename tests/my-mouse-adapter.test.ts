@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { exampleMap, solveWithModule, type MouseModule } from '../src/lib/demos/my-mouse-adapter';
+import { solveWithModule, type MouseModule } from '../src/lib/demos/my-mouse-adapter';
 
+const exampleMap = '3x5* o12\n*****\n*1 2*\n*****\n';
 const solvedMap = '3x5* o12\n*****\n*1o2*\n*****\n';
 
 function moduleFor(status: number, pointer = 42): { module: MouseModule; calls: Array<[string, Array<string | number>]> } {
@@ -23,7 +24,7 @@ function moduleFor(status: number, pointer = 42): { module: MouseModule; calls: 
 describe('my_mouse browser adapter', () => {
   test('passes the complete LF-terminated map and length, reads output, and resets', () => {
     const { module, calls } = moduleFor(0);
-    expect(solveWithModule(module, exampleMap)).toEqual({ map: solvedMap, steps: 1 });
+    expect(solveWithModule(module, exampleMap)).toEqual({ map: solvedMap, steps: 2 });
     expect(calls).toEqual([
       ['mouse_solve', [exampleMap, new TextEncoder().encode(exampleMap).length]],
       ['mouse_result', []],

@@ -588,6 +588,8 @@ Responsible for:
 
 It should not contain the project's core algorithm merely because the project is being displayed in a browser.
 
+Project-specific browser generators may prepare inputs for a demo, but must not duplicate the showcased project's algorithm. For `my_mouse`, a TypeScript generator constructs a solvable maze and sends its complete `.map` text through the existing adapter to the C/WebAssembly solver. It guarantees a route by construction and introduces an alternative shortcut; the C solver alone discovers the shortest path. Generators remain inside their project's demo boundary, not in generic project presentation or a speculative shared maze framework.
+
 ---
 
 ## 13.2 Demo adapter
