@@ -8,6 +8,7 @@ import {
   statusLabels,
 } from '../lib/project-presentation';
 import { renderProjectMarkdown } from '../lib/render-project-markdown';
+import ProjectDemo from './ProjectDemo.astro';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -136,7 +137,7 @@ const hasTechnicalContent = Boolean(
   <section aria-labelledby="project-demo">
     <h2 id="project-demo">Demonstração</h2>
     {facts.demo.availability === 'interactive' ? (
-      <p>A demonstração interativa será integrada a esta página em uma etapa separada.</p>
+      <ProjectDemo id={facts.demo.id} />
     ) : facts.demo.availability === 'planned' ? (
       <p>Uma demonstração interativa está planejada, mas ainda não está disponível.</p>
     ) : (

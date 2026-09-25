@@ -1,0 +1,62 @@
+---
+import { exampleMap } from '../../lib/demos/my-mouse-adapter';
+---
+
+<div class="mouse-demo" data-my-mouse-demo>
+  <p>Este exemplo fixo mostra o solucionador procurando a saída do labirinto. O símbolo <code>1</code> é a entrada, <code>2</code> é a saída e <code>o</code> marca o trajeto.</p>
+  <div class="mouse-demo__maps">
+    <div>
+      <h3>Mapa de entrada</h3>
+      <pre aria-label="Mapa de entrada"><code>{exampleMap}</code></pre>
+    </div>
+    <div data-mouse-result hidden>
+      <h3>Mapa resolvido</h3>
+      <pre aria-label="Mapa resolvido"><code data-mouse-output></code></pre>
+      <p data-mouse-steps></p>
+    </div>
+  </div>
+  <button type="button" data-mouse-solve hidden>Resolver</button>
+  <p class="mouse-demo__status" role="status" aria-live="polite" data-mouse-status>Ative o JavaScript para executar esta demonstração.</p>
+</div>
+
+<script>
+  import { exampleMap, solveMyMouse } from '../../lib/demos/my-mouse-adapter';
+
+  const demo = document.querySelector<HTMLElement>('[data-my-mouse-demo]');
+  const button = demo?.querySelector<HTMLButtonElement>('[data-mouse-solve]');
+  const status = demo?.querySelector<HTMLElement>('[data-mouse-status]');
+  const result = demo?.querySelector<HTMLElement>('[data-mouse-result]');
+  const output = demo?.querySelector<HTMLElement>('[data-mouse-output]');
+  const steps = demo?.querySelector<HTMLElement>('[data-mouse-steps]');
+
+  if (button && status && result && output && steps) {
+    button.hidden = false;
+    status.textContent = '';
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      result.hidden = true;
+      status.textContent = 'Resolvendo o labirinto…';
+      try {
+        const solution = await solveMyMouse(exampleMap);
+        output.textContent = solution.map;
+        steps.textContent = `${solution.steps} ${solution.steps === 1 ? 'passo' : 'passos'} no trajeto.`;
+        result.hidden = false;
+        status.textContent = 'Labirinto resolvido.';
+      } catch (error) {
+        console.error('Falha na demonstração my_mouse:', error);
+        status.textContent = 'Não foi possível carregar ou executar a demonstração. Tente novamente mais tarde.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .mouse-demo { display: grid; gap: var(--space-2); }
+  .mouse-demo__maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-3); }
+  .mouse-demo__maps > div { min-width: 0; }
+  pre { width: 100%; overflow-x: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--space-1); background: var(--color-surface); white-space: pre; }
+  button { justify-self: start; }
+  .mouse-demo__status { min-height: 1.5em; }
+</style>
