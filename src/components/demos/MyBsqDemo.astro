@@ -1,0 +1,114 @@
+---
+import { bsqSizeLimits } from '../../lib/demos/my-bsq-generator';
+---
+
+<div class="bsq-demo" data-my-bsq-demo>
+  <p>Escolha o tamanho do mapa quadrado, gere os espaços livres e obstáculos e depois use o programa em C para encontrar o maior quadrado. <code>.</code> indica espaço livre, <code>o</code> obstáculo e <code>x</code> o quadrado encontrado.</p>
+  <div class="bsq-demo__controls">
+    <label>Tamanho do mapa
+      <input type="number" min={bsqSizeLimits.min} max={bsqSizeLimits.max} step="1" value={bsqSizeLimits.default} inputmode="numeric" data-bsq-size />
+    </label>
+    <button type="button" data-bsq-generate hidden>Gerar mapa</button>
+    <button type="button" data-bsq-solve hidden disabled>Encontrar maior quadrado</button>
+  </div>
+  <p class="bsq-demo__status" role="status" aria-live="polite" data-bsq-status>Ative o JavaScript para gerar um mapa.</p>
+  <div class="bsq-demo__maps">
+    <div data-bsq-input hidden>
+      <h3>Mapa gerado</h3>
+      <pre aria-label="Mapa gerado"><code data-bsq-map></code></pre>
+    </div>
+    <div data-bsq-result hidden>
+      <h3>Resultado</h3>
+      <pre aria-label="Mapa resolvido"><code data-bsq-output></code></pre>
+      <p data-bsq-square></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { generateMyBsqMap, isBsqSize } from '../../lib/demos/my-bsq-generator';
+  import { solveMyBsq } from '../../lib/demos/my-bsq-adapter';
+
+  const demo = document.querySelector<HTMLElement>('[data-my-bsq-demo]');
+  const size = demo?.querySelector<HTMLInputElement>('[data-bsq-size]');
+  const generate = demo?.querySelector<HTMLButtonElement>('[data-bsq-generate]');
+  const solve = demo?.querySelector<HTMLButtonElement>('[data-bsq-solve]');
+  const status = demo?.querySelector<HTMLElement>('[data-bsq-status]');
+  const input = demo?.querySelector<HTMLElement>('[data-bsq-input]');
+  const map = demo?.querySelector<HTMLElement>('[data-bsq-map]');
+  const result = demo?.querySelector<HTMLElement>('[data-bsq-result]');
+  const output = demo?.querySelector<HTMLElement>('[data-bsq-output]');
+  const square = demo?.querySelector<HTMLElement>('[data-bsq-square]');
+
+  if (size && generate && solve && status && input && map && result && output && square) {
+    let currentMap: string | undefined;
+    generate.hidden = false;
+    solve.hidden = false;
+    status.textContent = 'Defina o tamanho e selecione “Gerar mapa”.';
+
+    generate.addEventListener('click', () => {
+      const nextSize = Number(size.value);
+      if (!size.value.trim() || !isBsqSize(nextSize)) {
+        status.textContent = 'Informe um tamanho inteiro entre 5 e 50.';
+        return;
+      }
+      try {
+        currentMap = generateMyBsqMap(nextSize).map;
+        map.textContent = currentMap;
+        input.hidden = false;
+        output.textContent = '';
+        square.textContent = '';
+        result.hidden = true;
+        solve.disabled = false;
+        status.textContent = 'Mapa gerado. Selecione “Encontrar maior quadrado” para analisar o mapa.';
+      } catch (error) {
+        console.error('Falha ao gerar o mapa my_bsq:', error);
+        currentMap = undefined;
+        solve.disabled = true;
+        input.hidden = true;
+        result.hidden = true;
+        status.textContent = 'Não foi possível gerar o mapa. Tente novamente.';
+      }
+    });
+
+    solve.addEventListener('click', async () => {
+      if (!currentMap) return;
+      const mapToSolve = currentMap;
+      solve.disabled = true;
+      generate.disabled = true;
+      size.disabled = true;
+      result.hidden = true;
+      status.textContent = 'Analisando o mapa…';
+      try {
+        const solution = await solveMyBsq(mapToSolve);
+        output.textContent = solution.map;
+        square.textContent = solution.size === 0
+          ? 'Nenhum quadrado livre encontrado (0 × 0).'
+          : `Maior quadrado: ${solution.size} × ${solution.size}.`;
+        result.hidden = false;
+        status.textContent = 'Maior quadrado encontrado.';
+      } catch (error) {
+        console.error('Falha na demonstração my_bsq:', error);
+        status.textContent = error instanceof Error &&
+          (error.message.startsWith('O ') || error.message === 'Não foi possível preparar o resultado do mapa.')
+          ? error.message
+          : 'Não foi possível carregar ou executar a demonstração. Tente novamente.';
+      } finally {
+        solve.disabled = false;
+        generate.disabled = false;
+        size.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .bsq-demo { display: grid; gap: var(--space-2); min-width: 0; }
+  .bsq-demo__controls { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+  .bsq-demo__controls label { display: grid; gap: 0.25rem; }
+  .bsq-demo__controls input { width: 7rem; }
+  .bsq-demo__maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--space-3); min-width: 0; }
+  .bsq-demo__maps > div { min-width: 0; }
+  pre { width: 100%; overflow-x: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--space-1); background: var(--color-surface); white-space: pre; }
+  .bsq-demo__status { min-height: 1.5em; }
+</style>
