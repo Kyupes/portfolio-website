@@ -1,5 +1,6 @@
 ---
 import MyMouseDemo from './demos/MyMouseDemo.astro';
+import MyBsqDemo from './demos/MyBsqDemo.astro';
 
 interface Props {
   id: string;
@@ -7,6 +8,7 @@ interface Props {
 
 const demos = {
   'my-mouse': MyMouseDemo,
+  'my-bsq': MyBsqDemo,
 };
 
 const Demo = demos[Astro.props.id as keyof typeof demos];

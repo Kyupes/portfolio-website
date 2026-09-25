@@ -1,0 +1,22 @@
+{
+  "slug": "my-bsq",
+  "status": "completed",
+  "categories": ["algorithms"],
+  "origin": "academic",
+  "topics": ["dynamic-programming", "matrix-processing"],
+  "technologies": ["C", "GCC", "Make"],
+  "sourceCode": {
+    "availability": "private",
+    "provider": "GitHub"
+  },
+  "demo": {
+    "availability": "interactive",
+    "id": "my-bsq"
+  },
+  "algorithm": {
+    "complexity": {
+      "time": "O(N²)",
+      "space": "O(N)"
+    }
+  }
+}
